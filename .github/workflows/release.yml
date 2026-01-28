@@ -27,6 +27,11 @@ jobs:
 
             - name: List files
               run: ls -la
+            
+            - name: Debug GitHub ref
+              run: |
+                echo "GITHUB_REF=${GITHUB_REF}"
+                echo "GITHUB_REF_NAME=${GITHUB_REF_NAME}"
 
             - name: Build and push multi-arch image
               run: |
