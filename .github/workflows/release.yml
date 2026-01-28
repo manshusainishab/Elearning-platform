@@ -1,0 +1,17 @@
+name: release
+on:
+    push:
+        tags:
+            - 'v*.*.*'
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            
+            - name: Say hello
+              run: echo "Release workflow is running!"
+
+            - name: List files
+              run: ls -la
