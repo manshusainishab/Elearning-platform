@@ -22,3 +22,7 @@ jobs:
 
             - name: List files
               run: ls -la
+
+            - name: Multi-arch build
+              run: |
+                   docker buildx build --platform linux/amd64,linux/arm64 \ -t backend:test .
