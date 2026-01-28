@@ -4,3 +4,6 @@ on:
     push:
         branches:
             - main
+jobs:
+    build: docker-build
+        runs-on: ubuntu-latest
