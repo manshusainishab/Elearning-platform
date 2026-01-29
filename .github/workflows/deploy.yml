@@ -16,10 +16,10 @@ jobs:
                         key: ${{ secrets.EC2_SSH_KEY }}
                         port: ${{ secrets.EC2_SSH_PORT }}
                         debug: true
-                        # script: |
-                        #     eho "REMOTE USER:"
-                        #     whoami
-                        #     echo "HOSTNAME:"
-                        #     hostname
-                        #     eccho "DOCKER CONTAINERS:"
-                        #     docker ps
+                        script: |
+                            eho "REMOTE USER:"
+                            whoami
+                            echo "HOSTNAME:"
+                            hostname
+                            eccho "DOCKER CONTAINERS:"
+                            docker ps
