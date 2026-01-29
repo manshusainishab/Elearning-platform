@@ -7,13 +7,17 @@ jobs:
     deploy:
         runs-on: ubuntu-latest
         steps:
-            - name: SSH into EC2 (dry run)
-              uses: appleboy/ssh-action@v1.0.0
-              with:
-                host: ${{ secrets.EC2_HOST }}
-                username: ${{ secrets.EC2_USER }}
-                key: ${{ secrets.EC2_SSH_KEY }}
-                script: |
-                    whoami
-                    hostname
-                    docker ps
+                  - name: SSH into EC2 (dry run)
+                    uses: appleboy/ssh-action@v1.0.0
+                    with:
+                        host: ${{ secrets.EC2_HOST }}
+                        username: ${{ secrets.EC2_USER }}
+                        key: ${{ secrets.EC2_SSH_KEY }}
+                        debug: true
+                        script: |
+                            echo "REMOTE USER:"
+                            whoami
+                            echo "HOSTNAME:"
+                            hostname
+                            echo "DOCKER CONTAINERS:"
+                            docker ps
