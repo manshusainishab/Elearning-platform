@@ -15,9 +15,20 @@ jobs:
                         key: ${{ secrets.EC2_SSH_KEY }}
                         debug: true
                         script: |
-                            eho "REMOTE USER:"
-                            whoami
-                            echo "HOSTNAME:"
-                            hostname
-                            eccho "DOCKER CONTAINERS:"
-                            docker ps
+                            set -e
+
+                            echo "Deploying version: $GITHUB_REF_NAME"
+
+                            docker pull manshusainishab/my-backend:${GITHUB_REF_NAME}
+
+                            docker stop backend || true
+                            docker rm backend || true
+
+                            docker run -d \
+                            --name backend \
+                            --restart unless-stopped \
+                            -p 5000:5000 \
+                            --env-file /home/ubuntu/.env \
+                            manshusainishab/my-backend:${GITHUB_REF_NAME}
+
+                            echo "Deployment complete"
