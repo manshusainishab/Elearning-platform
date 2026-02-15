@@ -50,17 +50,19 @@ jobs:
           - name: Deploy via AWS SSM
             run: |
               aws ssm send-command \
-                --instance-ids i-0f3b721e62a94ad9f \
-                --document-name "AWS-RunShellScript" \
-                --comment "Deploy backend ${GITHUB_REF_NAME}" \
-                --parameters commands="
-                  docker pull 187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME} &&
-                  docker stop backend || true &&
-                  docker rm backend || true &&
-                  docker run -d \
+              --instance-ids i-0f3b721e62a94ad9f \
+              --document-name "AWS-RunShellScript" \
+              --comment "Deploy backend ${GITHUB_REF_NAME}" \
+              --parameters commands="
+                aws ecr get-login-password --region ap-south-1 | \
+                docker login --username AWS --password-stdin 187580527878.dkr.ecr.ap-south-1.amazonaws.com &&
+                docker pull 187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME} &&
+                docker stop backend || true &&
+                docker rm backend || true &&
+                docker run -d \
                   --name backend \
                   --restart unless-stopped \
                   -p 5000:5000 \
                   --env-file /home/ubuntu/.env \
                   187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
-                "
+              "
