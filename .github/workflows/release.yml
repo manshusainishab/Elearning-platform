@@ -65,4 +65,5 @@ jobs:
                   -p 5000:5000 \
                   --env-file /home/ubuntu/.env \
                   187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
+                docker image prune -af
               "
