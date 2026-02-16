@@ -53,6 +53,6 @@ jobs:
       - name: Force ECS deployment
         run: |
           aws ecs update-service \
-            --cluster theta-cluster \
+            --cluster Theta-cluster \
             --service Theta_task-service-nx0sgjxs \
             --force-new-deployment
