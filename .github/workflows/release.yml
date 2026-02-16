@@ -1,69 +1,58 @@
 name: release
+
 on:
-    push:
-        tags:
-            - 'v*.*.*'
+  push:
+    tags:
+      - 'v*.*.*'
+
 permissions:
-    id-token: write
-    contents: read
+  id-token: write
+  contents: read
+
 jobs:
-    release:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+  release:
+    runs-on: ubuntu-latest
 
-        - name: Setup QEMU
-          uses: docker/setup-qemu-action@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Setup Docker Buildx
-          uses: docker/setup-buildx-action@v3
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-        - name: Configure AWS credentials (OIDC)
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            role-to-assume: arn:aws:iam::187580527878:role/GitHubSSMDeployRole
-            aws-region: ap-south-1
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::187580527878:role/GitHubSSMDeployRole
+          aws-region: ap-south-1
 
-        - name: Login to Amazon ECR
-          uses: aws-actions/amazon-ecr-login@v2
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
 
-        - name: Build and push multi-arch image
-          run: |
-            ECR_URI=187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend
+      - name: Build and push image
+        run: |
+          ECR_URI=187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend
 
-            docker buildx build \
-              --platform linux/amd64,linux/arm64 \
-              -t $ECR_URI:latest \
-              --push .
+          docker buildx build \
+            --platform linux/amd64 \
+            -t $ECR_URI:${GITHUB_REF_NAME} \
+            -t $ECR_URI:latest \
+            --push .
 
-    deploy:
-      needs: release
-      runs-on: ubuntu-latest
-      steps:
-          - name: Configure AWS credentials (OIDC)
-            uses: aws-actions/configure-aws-credentials@v4
-            with:
-              role-to-assume: arn:aws:iam::187580527878:role/GitHubSSMDeployRole
-              aws-region: ap-south-1
+  deploy:
+    needs: release
+    runs-on: ubuntu-latest
 
-          - name: Deploy via AWS SSM
-            run: |
-              aws ssm send-command \
-              --instance-ids i-0f3b721e62a94ad9f \
-              --document-name "AWS-RunShellScript" \
-              --comment "Deploy backend ${GITHUB_REF_NAME}" \
-              --parameters commands="
-                aws ecr get-login-password --region ap-south-1 | \
-                docker login --username AWS --password-stdin 187580527878.dkr.ecr.ap-south-1.amazonaws.com &&
-                docker pull 187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:latest &&
-                docker stop backend || true &&
-                docker rm backend || true &&
-                docker run -d \
-                  --name backend \
-                  --restart unless-stopped \
-                  -p 5000:5000 \
-                  --env-file /home/ubuntu/.env \
-                  187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:latest
-                docker image prune -af
-              "
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::187580527878:role/GitHubSSMDeployRole
+          aws-region: ap-south-1
+
+      - name: Force ECS deployment
+        run: |
+          aws ecs update-service \
+            --cluster theta-cluster \
+            --service Theta_task-service-nx0sgjxs \
+            --force-new-deployment
