@@ -34,7 +34,7 @@ jobs:
 
             docker buildx build \
               --platform linux/amd64,linux/arm64 \
-              -t $ECR_URI:${GITHUB_REF_NAME} \
+              -t $ECR_URI:latest \
               --push .
 
     deploy:
@@ -56,7 +56,7 @@ jobs:
               --parameters commands="
                 aws ecr get-login-password --region ap-south-1 | \
                 docker login --username AWS --password-stdin 187580527878.dkr.ecr.ap-south-1.amazonaws.com &&
-                docker pull 187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME} &&
+                docker pull 187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:latest &&
                 docker stop backend || true &&
                 docker rm backend || true &&
                 docker run -d \
@@ -64,6 +64,6 @@ jobs:
                   --restart unless-stopped \
                   -p 5000:5000 \
                   --env-file /home/ubuntu/.env \
-                  187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
+                  187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:latest
                 docker image prune -af
               "
