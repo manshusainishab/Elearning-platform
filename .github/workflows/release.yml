@@ -50,9 +50,31 @@ jobs:
           role-to-assume: arn:aws:iam::187580527878:role/GitHubSSMDeployRole
           aws-region: ap-south-1
 
-      - name: Force ECS deployment
+      - name: Get current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition Theta_task \
+            --query taskDefinition \
+            > task-def.json
+
+      - name: Update image in task definition
+        run: |
+          IMAGE_URI=187580527878.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
+
+          jq --arg IMAGE "$IMAGE_URI" \
+            '.containerDefinitions[0].image = $IMAGE
+            | del(.taskDefinitionArn,.revision,.status,.requiresAttributes,.compatibilities,.registeredAt,.registeredBy)' \
+            task-def.json > new-task-def.json
+
+      - name: Register new task definition
+        run: |
+          aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json
+
+      - name: Update ECS service to new revision
         run: |
           aws ecs update-service \
             --cluster Theta_cluster \
             --service Theta_task-service-nx0sgjxs \
-            --force-new-deployment
+            --task-definition Theta_task
+
