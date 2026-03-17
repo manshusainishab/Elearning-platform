@@ -6,9 +6,9 @@ export const isAuth = async (req,res,next)=>{
         const token = req.headers.token;
         
         if (!token) 
-            return res.status(403).json({
+            {return res.status(403).json({
             message: "Please Login",
-        });
+        });}
 
         const decodedData = jwt.verify(token, process.env.Jwt_Secret)
 
@@ -18,7 +18,7 @@ export const isAuth = async (req,res,next)=>{
 
     }catch(err){
         res.status(500).json(
-            {message : "Login First"}
+            {message : `Login First ${err.message}`}
         );
     }
 }

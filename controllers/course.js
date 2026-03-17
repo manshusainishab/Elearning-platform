@@ -186,7 +186,7 @@ export const addProgress = async (req, res) => {
       course: req.query.course,
     });
   
-    if (!progress) return res.status(404).json({ message: "null" });
+    if (!progress) {return res.status(404).json({ message: "null" });}
   
     const allLectures = (await Lecture.find({ course: req.query.course })).length;
   

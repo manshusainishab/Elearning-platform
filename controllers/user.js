@@ -11,7 +11,7 @@ export const register = async(req,res)=>{
         let user = await User.findOne({email});
 
         if (user)
-            return res.status(400).json({message: "user Already exists"});
+            {return res.status(400).json({message: "user Already exists"});}
 
             const hashPassword = await bcrypt.hash(password,10);
 
@@ -92,11 +92,11 @@ export const loginUser = async(req,res)=>{
 
         const user = await User.findOne({email})
 
-        if (!user) return res.status(400).json({message: "No user with this email"});
+        if (!user) {return res.status(400).json({message: "No user with this email"});}
 
         const matchPassword = await bcrypt.compare(password, user.password);
 
-        if (!matchPassword) return res.status(400).json({message: "password is incorrect"});
+        if (!matchPassword) {return res.status(400).json({message: "password is incorrect"});}
 
         const token = await jwt.sign({_id: user._id}, process.env.Jwt_Secret,{
             expiresIn: "15d"
@@ -134,9 +134,9 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email });
   
     if (!user)
-      return res.status(404).json({
+      {return res.status(404).json({
         message: "No User with this email",
-      });
+      });}
   
     const token = jwt.sign({ email }, process.env.Jwt_Secret);
   
@@ -165,14 +165,14 @@ export const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: decodedData.email });
   
     if (!user)
-      return res.status(404).json({
+      {return res.status(404).json({
         message: "No user with this email",
-      });
+      });}
   
     if (user.resetPasswordExpire === null)
-      return res.status(400).json({
+      {return res.status(400).json({
         message: "Token Expired",
-      });
+      });}
   
     if (user.resetPasswordExpire < Date.now()) {
       return res.status(400).json({
