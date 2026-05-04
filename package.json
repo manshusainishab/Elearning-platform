@@ -22,7 +22,7 @@
     "multer": "^2.0.2",
     "nodemailer": "^8.0.4",
     "razorpay": "^2.9.5",
-    "uuid": "^10.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "eslint": "^9.39.4",
