@@ -36,3 +36,4 @@ const schema = new mongoose.Schema({
 
 
 export const Courses = mongoose.model("Courses", schema)
+
