@@ -25,7 +25,7 @@ resource "aws_ecs_task_definition" "theta_backend" {
         { name = "PORT", value = "5000" },
         { name = "AWS_REGION", value = "ap-south-1" },
         { name = "S3_UPLOADS_BUCKET", value = aws_s3_bucket.uploads.bucket },
-        { name = "frontendurl", value = "http://localhost:5173" },
+        { name = "frontendurl", value = "https://elearning-bice.vercel.app" },
       ]
 
       secrets = [
