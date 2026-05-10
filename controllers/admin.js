@@ -1,9 +1,20 @@
 import { Courses } from "../models/Courses.js";
 import { Lecture } from "../models/Lecture.js";
-import { rm } from 'fs'
-import fs from 'fs'
-import { promisify } from "util";
 import { User } from '../models/User.js'
+import { DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { s3Client, UPLOADS_BUCKET } from '../lib/s3.js';
+
+const deleteFromS3 = async (key) => {
+    if (!key) {return;}
+    try {
+        await s3Client.send(new DeleteObjectCommand({
+            Bucket: UPLOADS_BUCKET,
+            Key: key,
+        }));
+    } catch (err) {
+        console.error(`Failed to delete S3 object ${key}:`, err.message);
+    }
+};
 
 export const createCourse = async (req,res)=>{
     try{
@@ -13,11 +24,11 @@ export const createCourse = async (req,res)=>{
 
         await Courses.create({
             title,
-            description, 
-            category, 
-            createdBy, 
-            image: image?.path, 
-            duration, 
+            description,
+            category,
+            createdBy,
+            image: image?.key,
+            duration,
             price,
         })
 
@@ -47,7 +58,7 @@ export const addLecture = async (req,res)=>{
         const lecture = await Lecture.create({
             title,
             description,
-            video: file?.path,
+            video: file?.key,
             course: course._id
         })
 
@@ -64,9 +75,7 @@ export const deleteLecture = async (req,res)=>{
     try{
         const lecture = await Lecture.findById(req.params.id);
 
-        rm(lecture.video, ()=>{
-            console.log("Video removed");
-        })
+        await deleteFromS3(lecture.video);
 
         await lecture.deleteOne();
 
@@ -76,8 +85,6 @@ export const deleteLecture = async (req,res)=>{
     }
 }
 
-const unlinkAsync = promisify(fs.unlink);
-
 export const deleteCourse = async (req,res)=>{
     try{
         const course = await Courses.findById(req.params.id);
@@ -85,15 +92,10 @@ export const deleteCourse = async (req,res)=>{
         const lectures = await Lecture.find({ course: course._id})
 
         await Promise.all(
-            lectures.map(async(lecture)=>{
-                await unlinkAsync(lecture.video)
-                console.log("video deleted");
-            })
+            lectures.map((lecture) => deleteFromS3(lecture.video))
         )
 
-        rm(course.image, ()=>{
-            console.log("Image removed");
-        })
+        await deleteFromS3(course.image);
 
         await Lecture.find({course: req.params.id}).deleteMany();
 
@@ -131,13 +133,13 @@ export const getAllUser = async (req, res) => {
     const users = await User.find({ _id: { $ne: req.user._id } }).select(
       "-password"
     );
-  
+
     res.json({ users });
   }catch(err){
     res.status(500).send(err);
   }
 };
-  
+
   export const updateRole = async (req, res) => {
     try{
     if (req.user.mainrole !== "superadmin")
@@ -145,20 +147,20 @@ export const getAllUser = async (req, res) => {
         message: "This endpoint is assign to superadmin",
       });}
     const user = await User.findById(req.params.id);
-  
+
     if (user.role === "user") {
       user.role = "admin";
       await user.save();
-  
+
       return res.status(200).json({
         message: "Role updated to admin",
       });
     }
-  
+
     if (user.role === "admin") {
       user.role = "user";
       await user.save();
-  
+
       return res.status(200).json({
         message: "Role updated",
       });

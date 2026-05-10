@@ -13,6 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1045.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -20,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.3",
     "multer": "^2.0.2",
+    "multer-s3": "^3.0.1",
     "nodemailer": "^8.0.4",
     "razorpay": "^2.9.5",
     "uuid": "^14.0.0"

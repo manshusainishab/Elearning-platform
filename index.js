@@ -1,11 +1,10 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import { connectDb } from './database/db.js';
 import Razorpay from 'razorpay'
 import cors from 'cors';
-
-
-dotenv.config();
+import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { s3Client, UPLOADS_BUCKET } from './lib/s3.js';
 
 export const instance = new Razorpay({
     key_id: process.env.Razorpay_Key,
@@ -25,7 +24,21 @@ app.get('/',(req,res)=>{
     res.send("server is working");
 })
 
-app.use("/uploads", express.static("uploads"));
+app.get('/uploads/*', async (req, res) => {
+    const key = req.path.slice(1);
+    try {
+        const obj = await s3Client.send(new GetObjectCommand({
+            Bucket: UPLOADS_BUCKET,
+            Key: key,
+        }));
+        if (obj.ContentType) {res.set('Content-Type', obj.ContentType);}
+        if (obj.ContentLength) {res.set('Content-Length', obj.ContentLength);}
+        obj.Body.pipe(res);
+    } catch (err) {
+        if (err.name === 'NoSuchKey') {return res.status(404).send('Not found');}
+        res.status(500).send(err.message);
+    }
+});
 
 //importing routes
 import userRoutes from './routes/user.js'

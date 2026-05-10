@@ -1,19 +1,17 @@
 import multer from 'multer';
+import multerS3 from 'multer-s3';
 import { v4 as uuid } from 'uuid';
+import { s3Client, UPLOADS_BUCKET } from '../lib/s3.js';
 
-const storage = multer.diskStorage({
-    destination(req,file,cb){
-        cb(null, "uploads")
-    },
-    filename(req, file, cb){
+const storage = multerS3({
+    s3: s3Client,
+    bucket: UPLOADS_BUCKET,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key(req, file, cb) {
         const id = uuid();
+        const extName = file.originalname.split('.').pop();
+        cb(null, `uploads/${id}.${extName}`);
+    },
+});
 
-        const extName = file.originalname.split(".").pop()
-
-        const filename = `${id}.${extName}`;
-
-        cb(null,filename);
-    }
-})
-
-export const uploadFiles = multer({ storage }).single("file");
+export const uploadFiles = multer({ storage }).single('file');

@@ -1,4 +1,14 @@
 .env
 .git
+.github
+.husky
+.gitignore
+.dockerignore
 node_modules
 npm-debug.log
+infra
+uploads
+eslint.config.js
+*.md
+.vscode
+.idea
