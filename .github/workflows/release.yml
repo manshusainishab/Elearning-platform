@@ -23,7 +23,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::928705892455:role/theta-github-deploy
+          role-to-assume: arn:aws:iam::229128715570:role/theta-github-deploy
           aws-region: ap-south-1
 
       - name: Login to Amazon ECR
@@ -31,7 +31,8 @@ jobs:
 
       - name: Build and push image
         run: |
-          ECR_URI=928705892455.dkr.ecr.ap-south-1.amazonaws.com/theta-backend
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          ECR_URI=${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/theta-backend
 
           docker buildx build \
             --platform linux/amd64 \
@@ -47,7 +48,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::928705892455:role/theta-github-deploy
+          role-to-assume: arn:aws:iam::229128715570:role/theta-github-deploy
           aws-region: ap-south-1
 
       - name: Get current task definition
@@ -59,7 +60,8 @@ jobs:
 
       - name: Update image in task definition
         run: |
-          IMAGE_URI=928705892455.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
+          AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.ap-south-1.amazonaws.com/theta-backend:${GITHUB_REF_NAME}
 
           jq --arg IMAGE "$IMAGE_URI" \
             '.containerDefinitions[0].image = $IMAGE

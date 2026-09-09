@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "theta" {
-  domain_name               = "thetalearning.work.gd"
-  subject_alternative_names = ["www.thetalearning.work.gd"]
+  domain_name               = "thetalearning.qzz.io"
+  subject_alternative_names = ["www.thetalearning.qzz.io"]
   validation_method         = "DNS"
 
   lifecycle {

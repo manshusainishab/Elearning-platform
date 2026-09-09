@@ -44,7 +44,7 @@ output "alb_dns_name" {
 }
 
 output "acm_validation_records" {
-  description = "DNS records to add at freedomain.one to validate the ACM cert"
+  description = "DNS records to add at Cloudflare to validate the ACM certificate"
   value = {
     for dvo in aws_acm_certificate.theta.domain_validation_options :
     dvo.domain_name => {
