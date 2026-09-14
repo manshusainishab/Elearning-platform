@@ -24,7 +24,7 @@ app.get('/',(req,res)=>{
     res.send("server is working");
 })
 
-app.get('/uploads/*', async (req, res) => {
+app.get('/uploads/*splat', async (req, res) => {
     const key = req.path.slice(1);
     try {
         const obj = await s3Client.send(new GetObjectCommand({
