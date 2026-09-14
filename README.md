@@ -2,7 +2,7 @@
 
 Backend API for the Theta e-learning platform. Serves course content, lecture videos, user authentication, payments, and progress tracking. Frontend lives in a separate repo and is deployed on Vercel.
 
-- **Live API**: `https://www.thetalearning.work.gd`
+- **Live API**: `https://thetalearning.qzz.io`
 - **Frontend**: `https://elearning-bice.vercel.app`
 
 ---
@@ -155,10 +155,10 @@ Elearning-platform/
 
 ### Request flow
 
-A request to `https://www.thetalearning.work.gd/api/courses`:
+A request to `https://thetalearning.qzz.io/api/courses`:
 
-1. **DNS** — `www.thetalearning.work.gd` (CNAME) → ALB DNS → public IP.
-2. **TLS** — handshake terminates at ALB; cert is from ACM, valid for `thetalearning.work.gd` + `www.thetalearning.work.gd`.
+1. **DNS** — `thetalearning.qzz.io` (CNAME) → ALB DNS → public IP.
+2. **TLS** — handshake terminates at ALB; cert is from ACM, valid for `thetalearning.qzz.io` + `www.thetalearning.qzz.io`.
 3. **ALB listener** on port 443 forwards to the target group (`theta-backend-tg`).
 4. **Security group check** — task SG only allows port 5000 from the ALB SG by ID, not from the internet.
 5. **Container handles request** — Express app on port 5000. Routes match, controller runs.
